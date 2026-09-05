@@ -23,7 +23,12 @@ type SnippetModel struct {
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
 	sqlQuery := `
 		INSERT INTO snippets (title, content, created, expires)
-		VALUES($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + ($3 * INTERVAL '1 day'))
+		VALUES(
+			$1, 
+			$2, 
+			CURRENT_TIMESTAMP AT TIME ZONE 'UTC',
+			(CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + ($3 * INTERVAL '1 day')
+		)
 		RETURNING id;
 	`
 
