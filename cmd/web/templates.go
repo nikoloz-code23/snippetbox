@@ -3,9 +3,19 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"snippetbox.alexedwards.net/internal/models"
 )
+
+// FuncMap functions must return only ONE thing. You can have err as second, but nothing else.
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
+}
 
 func newTemplateCache() (map[string]*template.Template, error) {
 	// Initialize a new map to act as the cache.
@@ -26,7 +36,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// and assign it to the name variable.
 		name := filepath.Base(page)
 
-		ts, err := template.ParseFiles("./ui/html/base.tmpl.html")
+		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
@@ -58,19 +68,4 @@ type templateData struct {
 	CurrentYear int
 	Snippet models.Snippet
 	Snippets []models.Snippet
-}
-
-// TODO: This is a temporary solution. Look into messing with time.Time itself so you
-// don't have to call a function for these.
-func convertSnippetTimeToUTC(Snippet models.Snippet) (models.Snippet) {
-	Snippet.Created = Snippet.Created.UTC()
-	Snippet.Expires = Snippet.Expires.UTC()
-	return Snippet
-}
-
-func convertSnippetsTimeToUTC(Snippets []models.Snippet) ([]models.Snippet) {
-	for i := range len(Snippets) {
-		Snippets[i] = convertSnippetTimeToUTC(Snippets[i])
-	}
-	return Snippets
 }
