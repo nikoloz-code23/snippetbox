@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -19,9 +18,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, err)
 		return
 	}
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}
+
+	app.render(w, r, http.StatusOK, "home.tmpl.html", templateData{
+		Snippets: convertSnippetsTimeToUTC(snippets),
+	})
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -42,32 +42,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Initialize a slice containing the paths to the two files.
-	// It's important to note that the file containing our base
-	// template must be the *first* file in the slice.
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/view.tmpl.html",
-	}
-
-	// Use the template.ParseFiles() function to read the template file into a
-	// template set. If there's an error, we log the detailed error message, use
-	// the http.Error() function to send an Internal Server Error response to the
-	// user, and then return from the handler so no subsequent code is executed.
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	data := newTemplateData(snippet)
-
-	// And then execute them by passing the dynamic data.
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
+	app.render(w, r, http.StatusOK, "view.tmpl.html", templateData{
+		Snippet: convertSnippetTimeToUTC(snippet),
+	})
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
