@@ -55,6 +55,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 // any dynamic data that we want to pass to our HTML templates.
 // At the moment it only contains one field, but we'll add more
 type templateData struct {
+	CurrentYear int
 	Snippet models.Snippet
 	Snippets []models.Snippet
 }
