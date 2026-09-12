@@ -23,5 +23,5 @@ func (app *application) routes(cfg *config) http.Handler {
 
 	// logRequest will run first.
 	// commonHeaders will run second and then this routing will run right after.
-	return app.logRequest(commonHeaders(mux))
+	return app.recoverPanic(app.logRequest(commonHeaders(mux)))
 }
