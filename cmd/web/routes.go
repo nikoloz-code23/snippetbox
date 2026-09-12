@@ -21,6 +21,7 @@ func (app *application) routes(cfg *config) http.Handler {
 	mux.HandleFunc("GET /snippet/create", 				app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", 		app.snippetCreatePost)
 
-	// commonHeaders will run first and then this routing will run right after.
-	return commonHeaders(mux)
+	// logRequest will run first.
+	// commonHeaders will run second and then this routing will run right after.
+	return app.logRequest(commonHeaders(mux))
 }
