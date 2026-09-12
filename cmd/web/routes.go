@@ -3,7 +3,7 @@ package main
 import "net/http"
 
 // The routes() method returns a servemux containing our application routes.
-func (app *application) routes(cfg *config) *http.ServeMux {
+func (app *application) routes(cfg *config) http.Handler {
 	mux := http.NewServeMux()
 
 	// Point direction to the file server location. Returns http.Handler.
@@ -21,5 +21,6 @@ func (app *application) routes(cfg *config) *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", 				app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", 		app.snippetCreatePost)
 
-	return mux
+	// commonHeaders will run first and then this routing will run right after.
+	return commonHeaders(mux)
 }
