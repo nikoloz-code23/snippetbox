@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 // The routes() method returns a servemux containing our application routes.
 func (app *application) routes(cfg *config) http.Handler {
@@ -21,7 +25,6 @@ func (app *application) routes(cfg *config) http.Handler {
 	mux.HandleFunc("GET /snippet/create", 				app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", 		app.snippetCreatePost)
 
-	// logRequest will run first.
-	// commonHeaders will run second and then this routing will run right after.
-	return app.recoverPanic(app.logRequest(commonHeaders(mux)))
+	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
+	return standard.Then(mux)
 }
